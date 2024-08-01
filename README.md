@@ -1,9 +1,14 @@
-#import pandas as pd
+/Импорт библиотек
+import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import sklearn
+
+/запуск проекта
 !gdown https://drive.google.com/uc?id=1R-K2mRfPkstCB7EJTyNDC-bNJv2xm2i2
 df = pd.read_csv("Supermarket_sales - Sheet1.csv")
+
+/Ознокомление с задачей
 df.head()
 df.info()
 df.head()
@@ -24,6 +29,7 @@ df['hour'] = df['DateTime'].dt.hour
 df['minute'] = df['DateTime'].dt.minute
 df.drop(columns=['Date', 'Time'], inplace=True)
 
+/графики и коррелиация
 plt.figure(figsize=(12, 3), dpi=1000)
 plt.title('Иллюстрация стоимости', color='red', fontsize=18)
 plt.plot(df['Total'], color='black', linestyle='-', linewidth=0.8, label='Итоговая стоимость')
@@ -72,6 +78,7 @@ df.groupby(['Gender', 'Product line']).sum(numeric_only=True)
 
 df.info()
 
+/создание новых колонок из существующих
 df['Branch'].value_counts()
 
 df[['A', 'B', 'C']] = pd.get_dummies(df['Branch'], dtype=int)
@@ -115,6 +122,8 @@ df.drop(columns=['Payment'], inplace=True)
 df['Ewallet'].value_counts()/len(df)*100
 df.columns
 
+/Моделировние
+/выбор элементов входных данных
 df.info()
 
 df.isnull().sum()
