@@ -1,3 +1,6 @@
+# Задача по регрессии (Supermarket Sales)
+
+
 # Импорт библиотек
 import pandas as pd
 import numpy as np
