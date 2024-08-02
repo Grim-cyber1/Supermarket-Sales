@@ -1,14 +1,14 @@
-/Импорт библиотек
+# Импорт библиотек
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import sklearn
 
-/запуск проекта
+# запуск проекта
 !gdown https://drive.google.com/uc?id=1R-K2mRfPkstCB7EJTyNDC-bNJv2xm2i2
 df = pd.read_csv("Supermarket_sales - Sheet1.csv")
 
-/Ознокомление с задачей
+# Ознокомление с задачей
 df.head()
 df.info()
 df.head()
@@ -29,7 +29,7 @@ df['hour'] = df['DateTime'].dt.hour
 df['minute'] = df['DateTime'].dt.minute
 df.drop(columns=['Date', 'Time'], inplace=True)
 
-/графики и коррелиация
+# графики и коррелиация
 plt.figure(figsize=(12, 3), dpi=1000)
 plt.title('Иллюстрация стоимости', color='red', fontsize=18)
 plt.plot(df['Total'], color='black', linestyle='-', linewidth=0.8, label='Итоговая стоимость')
@@ -78,7 +78,7 @@ df.groupby(['Gender', 'Product line']).sum(numeric_only=True)
 
 df.info()
 
-/создание новых колонок из существующих
+# создание новых колонок из существующих
 df['Branch'].value_counts()
 
 df[['A', 'B', 'C']] = pd.get_dummies(df['Branch'], dtype=int)
@@ -122,8 +122,8 @@ df.drop(columns=['Payment'], inplace=True)
 df['Ewallet'].value_counts()/len(df)*100
 df.columns
 
-/Моделировние
-/выбор элементов входных данных
+# Моделировние
+# выбор элементов входных данных
 df.info()
 
 df.isnull().sum()
@@ -131,7 +131,6 @@ df.isnull().sum()
 X_columns = df.drop(columns=['Total', 'Invoice ID', 'DateTime', 'cogs', 'Tax 5%', 'gross income']).columns
 
 X = df[X_columns]
-
 Y = df['Total']
 
 X_columns
@@ -139,10 +138,10 @@ X_columns
 df.head()
 
 df.corr(numeric_only=True)
-
-
-
 X.shape, Y.shape
+
+
+# Разделение набора данных на тренировочный и тестовый мини наборы (train, test split)
 from sklearn.model_selection import train_test_split
 
 X_train, X_test, Y_train, Y_test = train_test_split(X.values, Y.values, test_size=0.10, random_state=10)
@@ -155,12 +154,7 @@ X.describe()
 
 
 
-from sklearn.preprocessing import LabelEncoder
-
-
-labelencoder = LabelEncoder()
-
-from sklearn.preprocessing import OneHotEncoder
+# Универсальная функция для оценки модели по всем метрикам регрессии
 from sklearn.metrics import mean_absolute_percentage_error, mean_absolute_error, r2_score, mean_squared_error
 
 
@@ -171,10 +165,13 @@ def all_reg_scores(model, name_model, X_test, Test_y):
     RMSE = round(np.sqrt(mean_squared_error(Y_test, model.predict(X_test))), 2)
     MAPE = round(mean_absolute_percentage_error(Y_test, model.predict(X_test))*100, 4)
     R2 = round(r2_score(Y_test, model.predict(X_test)), 4)
-
     print(f'{name_model} model: \n', '      r2_score: {0}     MAPE (%): {1}     MAE: {2}     RMSE: {3}     MSE: {4}'.format(R2, MAPE, MAE, RMSE, MSE))
-    df.describe()
 
+
+
+# Масштабирование набора данных (признаков)
+    df.describe()
+# Linear regression (LR)
     from sklearn.linear_model import LinearRegression
 
 LR = LinearRegression()
@@ -200,6 +197,7 @@ plt.plot(pd.DataFrame(Y_test).sort_values(0).reset_index().drop('index', axis=1)
 plt.grid()
 plt.legend()
 
+# K-Neighbors Regressor (KNNR)
 from sklearn.neighbors import KNeighborsRegressor
 
 KNNR = KNeighborsRegressor(n_neighbors=6)
@@ -209,6 +207,8 @@ KNNR.fit(X_train, Y_train)
 KNNR.score(X_test, Y_test)
 
 all_reg_scores(KNNR, 'KNNR', X_test, Y_test)
+
+# Decision Tree Regressor
 from sklearn.tree import DecisionTreeRegressor
 
 DTR = DecisionTreeRegressor(max_depth=15, random_state=10)
@@ -218,6 +218,8 @@ DTR.fit(X_train, Y_train)
 DTR.score(X_test, Y_test)
 
 all_reg_scores(DTR, 'DTR', X_test, Y_test)
+
+# Bagging Regressor
 from sklearn.ensemble import BaggingRegressor
 
 BGR = BaggingRegressor(base_estimator=LinearRegression(),
@@ -238,6 +240,9 @@ BGR.score(X_test, Y_test.ravel())
 all_reg_scores(BGR, 'BGR', X_test, Y_test)
 
 Pred_BGR = BGR.predict(X_test)
+
+
+# Random Forest Regressor
 from sklearn.ensemble import RandomForestRegressor
 RFR = RandomForestRegressor(n_estimators=100,
                             max_depth=None,
@@ -265,6 +270,9 @@ columns = X.columns
 sorted_idx = RFR.feature_importances_.argsort()
 plt.barh(columns[sorted_idx], RFR.feature_importances_[sorted_idx])
 plt.xlabel("RFR Feature Importance")
+
+
+# Extra Trees Regressor
 from sklearn.ensemble import ExtraTreesRegressor
 
 ExTR = ExtraTreesRegressor(n_estimators=100,
@@ -294,6 +302,9 @@ y_pred_ExTR = ExTR.predict(X_test)
 sorted_idx = ExTR.feature_importances_.argsort()
 plt.barh(columns[sorted_idx], ExTR.feature_importances_[sorted_idx])
 plt.xlabel("ExTR Feature Importance")
+
+
+# Adaptive Boosting Regressor
 from sklearn.ensemble import AdaBoostRegressor
 
 AdBR = AdaBoostRegressor(random_state=0, n_estimators=100)
@@ -303,6 +314,9 @@ AdBR.fit(X_train, Y_train.ravel())
 AdBR.score(X_test, Y_test.ravel())
 
 all_reg_scores(AdBR, 'AdBR', X_test, Y_test)
+
+
+# Gradient Boosting Regressor
 from sklearn.ensemble import GradientBoostingRegressor
 
 GBR = GradientBoostingRegressor(
@@ -331,6 +345,9 @@ GBR.fit(X_train, Y_train.ravel())
 GBR.score(X_test, Y_test.ravel())
 
 all_reg_scores(GBR, 'GBR', X_test, Y_test)
+
+
+# XGB Regressor
 from xgboost import XGBRegressor
 
 XGBR = XGBRegressor(max_depth=10,
@@ -346,6 +363,10 @@ XGBR.fit(X_train, Y_train)
 XGBR.score(X_test, Y_test)
 
 all_reg_scores(XGBR, 'XGBR', X_test, Y_test)
+
+
+
+# LGBM Regressor
 import lightgbm as ltb
 
 lgbm = ltb.LGBMRegressor()
@@ -396,6 +417,10 @@ Y_pred_lgb = LGBMR.predict(X_test)
 
 r2_score(Y_pred_lgb, Y_test)
 
+
+
+
+# TOTAL Results
 all_reg_scores(LGBMR, 'LGBMR', X_test, Y_test)
 all_reg_scores(LR, 'LR', X_test, Y_test)
 all_reg_scores(KNNR, 'KNNR', X_test, Y_test)
